@@ -133,7 +133,7 @@
       shieldMesh = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 0.15, 32), new THREE.MeshStandardMaterial({ color: 0x00ff66, metalness: 1, roughness: 0.05 }));
       shieldMesh.rotation.x = Math.PI / 2;
       scene.add(shieldMesh);
-      scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+      scene.add(new THREE.AmbientLight(0x00ff66, 0.5));
 
       window.addEventListener('pointermove', (e) => {
         pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
