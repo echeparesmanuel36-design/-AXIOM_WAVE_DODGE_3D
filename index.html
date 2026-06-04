@@ -102,7 +102,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // 1. AUDIO-ID: SÍNTESIS DE SONIDOS DE INTERFAZ (METAL PESADO)
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playAxiomSound(freq, type) {
       const osc = audioCtx.createOscillator();
@@ -115,14 +114,12 @@
       osc.start(); osc.stop(audioCtx.currentTime + 0.1);
     }
 
-    // 2. VARIABLES DEL MOTOR
     let scene, camera, renderer, shieldMesh, waves = [];
     let score = 0, comboStreak = 0, lastTime = performance.now(), waveSpeedMultiplier = 1.0;
     const RECORD_MANUEL = 42;
     const pointer = new THREE.Vector2();
     const watermark = document.getElementById('axiom-watermark');
 
-    // 3. INICIALIZACIÓN
     function initEngine3D() {
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 100);
@@ -130,7 +127,17 @@
       renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas-viewport'), antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
 
-      shieldMesh = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 0.15, 32), new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 1, roughness: 0.05 }));
+      // CAMBIO APLICADO: Verde Neón Brillante (Emisivo)
+      shieldMesh = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.2, 1.2, 0.15, 32), 
+        new THREE.MeshStandardMaterial({ 
+          color: 0x00ff66, 
+          emissive: 0x00ff66, 
+          emissiveIntensity: 0.5, 
+          metalness: 0.5, 
+          roughness: 0.2 
+        })
+      );
       shieldMesh.rotation.x = Math.PI / 2;
       scene.add(shieldMesh);
       scene.add(new THREE.AmbientLight(0xffffff, 0.5));
@@ -144,7 +151,6 @@
       animateEngineLoop();
     }
 
-    // 4. BUCLE DE JUEGO (LÓGICA FUNCIONAL)
     function animateEngineLoop() {
       requestAnimationFrame(animateEngineLoop);
       const delta = (performance.now() - lastTime) / 1000;
