@@ -130,10 +130,11 @@
       renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas-viewport'), antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
 
-      shieldMesh = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 0.15, 32), new THREE.MeshStandardMaterial({ color: 0x00ff66, metalness: 1, roughness: 0.05 }));
+      // ESCUDO VERDE Y MÁS PEQUEÑO (RADIO 0.6)
+      shieldMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 0.15, 32), new THREE.MeshStandardMaterial({ color: 0x00ff66, metalness: 1, roughness: 0.05 }));
       shieldMesh.rotation.x = Math.PI / 2;
       scene.add(shieldMesh);
-      scene.add(new THREE.AmbientLight(0x00ff66, 0.5));
+      scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
       window.addEventListener('pointermove', (e) => {
         pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -142,6 +143,30 @@
       });
 
       animateEngineLoop();
+    }
+
+    function animateEngineLoop() {
+      requestAnimationFrame(animateEngineLoop);
+      const delta = (performance.now() - lastTime) / 1000;
+      lastTime = performance.now();
+
+      shieldMesh.position.x += (pointer.x * 2.5 - shieldMesh.position.x) * 0.2;
+      shieldMesh.position.y += (pointer.y * 2.0 - shieldMesh.position.y) * 0.2;
+
+      if (Math.random() < 0.02 * waveSpeedMultiplier) spawnWave();
+
+      waves.forEach((w, i) => {
+        w.position.z += 8 * delta * waveSpeedMultiplier;
+        if (w.position.z > 6) { scene.remove(w); waves.splice(i, 1); triggerColapso(); }
+        // Ajuste de colisión para el nuevo tamaño (0.8)
+        else if (w.position.z > 4.5 && Math.abs(w.position.x - shieldMesh.position.x) < 0.8 && Math.abs(w.position.y - shieldMesh.position.y) < 0.8) {
+          scene.remove(w); waves.splice(i, 1);
+          score += 100; comboStreak++;
+          document.getElementById('score-display').innerText = String(score).padStart(6, '0');
+          playAxiomSound(200, 'square');
+        }
+      });
+      renderer.render(scene, camera);
     }
 
     // 4. BUCLE DE JUEGO (LÓGICA FUNCIONAL)
