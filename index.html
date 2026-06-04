@@ -127,15 +127,15 @@
       renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas-viewport'), antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
 
-      // CAMBIO APLICADO: Verde Neón Brillante (Emisivo)
+      // ESCUDO VERDE NEÓN Y TAMAÑO REDUCIDO (RADIO 0.6)
       shieldMesh = new THREE.Mesh(
-        new THREE.CylinderGeometry(1.2, 1.2, 0.15, 32), 
+        new THREE.CylinderGeometry(0.6, 0.6, 0.15, 32), 
         new THREE.MeshStandardMaterial({ 
           color: 0x00ff66, 
           emissive: 0x00ff66, 
-          emissiveIntensity: 0.5, 
-          metalness: 0.5, 
-          roughness: 0.2 
+          emissiveIntensity: 0.8, 
+          metalness: 0.2, 
+          roughness: 0.1 
         })
       );
       shieldMesh.rotation.x = Math.PI / 2;
@@ -164,7 +164,7 @@
       waves.forEach((w, i) => {
         w.position.z += 8 * delta * waveSpeedMultiplier;
         if (w.position.z > 6) { scene.remove(w); waves.splice(i, 1); triggerColapso(); }
-        else if (w.position.z > 4.5 && Math.abs(w.position.x - shieldMesh.position.x) < 1.4 && Math.abs(w.position.y - shieldMesh.position.y) < 1.4) {
+        else if (w.position.z > 4.5 && Math.abs(w.position.x - shieldMesh.position.x) < 0.8 && Math.abs(w.position.y - shieldMesh.position.y) < 0.8) {
           scene.remove(w); waves.splice(i, 1);
           score += 100; comboStreak++;
           document.getElementById('score-display').innerText = String(score).padStart(6, '0');
