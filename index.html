@@ -8,10 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="manifest" href="./manifest.webmanifest">
   <meta name="theme-color" content="#00ff66">
 
   <style>
-    /* RESETEO ATÓMICO Y VARIABLES BARE-METAL */
     :root {
       --bg-deep: #050508;
       --panel-glass: rgba(10, 10, 15, 0.7);
@@ -36,147 +36,34 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; touch-action: none; }
-
-    body {
-      background-color: var(--bg-deep);
-      color: var(--text-main);
-      font-family: var(--font-hud);
-      overflow: hidden;
-      width: 100vw;
-      height: 100vh;
-      height: 100dvh;
-      position: relative;
-      transition: background-color 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-    }
-
-    /* SELLO DE AUTOR CINÉTICO */
-    #axiom-watermark {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      font-family: var(--font-mono);
-      font-size: 0.7rem;
-      color: var(--watermark-color);
-      pointer-events: none;
-      z-index: 100;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      transition: transform 0.1s ease-out;
-    }
+    body { background-color: var(--bg-deep); color: var(--text-main); font-family: var(--font-hud); overflow: hidden; width: 100vw; height: 100dvh; position: relative; transition: background-color 0.4s ease; }
 
     #canvas-viewport { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: auto; }
     
-    body::after {
-      content: " ";
-      display: block;
-      position: fixed;
-      top: 0; left: 0; bottom: 0; right: 0;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-      z-index: 99;
-      background-size: 100% 4px, 6px 100%;
-      pointer-events: none;
-    }
-    /* CAPA COMPLETA INTERFAZ HUD OVERLAY */
-    .hud-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 40;
-      pointer-events: none;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 24px;
-      padding-top: calc(24px + env(safe-area-inset-top));
-      padding-bottom: calc(24px + env(safe-area-inset-bottom));
-    }
+    /* SELLO DE AUTOR CINÉTICO */
+    #axiom-watermark { position: fixed; bottom: 20px; right: 20px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--watermark-color); pointer-events: none; z-index: 100; text-transform: uppercase; letter-spacing: 2px; transition: transform 0.1s ease-out; }
 
+    body::after { content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); z-index: 99; background-size: 100% 4px, 6px 100%; pointer-events: none; }
+    
+    .hud-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 40; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 24px; }
     .interactive-element { pointer-events: auto; }
-
-    /* PANELES CON CRISTAL DE ZAFIRO (GLASS-MORPHIC MESH) */
-    .glass-panel {
-      background: var(--panel-glass);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--border-glow);
-      border-radius: 16px;
-      padding: 16px 24px;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-      transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-    }
-
-    .hud-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-    }
-
-    .score-container {
-      font-family: var(--font-hud);
-      font-weight: 900;
-      font-size: 2.5rem;
-      color: var(--neon-primary);
-      letter-spacing: 2px;
-      text-shadow: 0 0 10px var(--border-glow);
-    }
-
-    /* CONMUTADOR DE TEMA ELÁSTICO */
-    .theme-toggle {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-glow);
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 1.2rem;
-    }
-
-    /* MENSAJE DE PIQUE ASÍNCRONO */
-    #pique-message-bunker {
-      position: absolute;
-      top: 35%;
-      left: 50%;
-      transform: translate(-100%, -50%);
-      width: 90%;
-      max-width: 500px;
-      text-align: center;
-      font-family: var(--font-mono);
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #ffffff;
-      background: rgba(255, 0, 50, 0.85);
-      border: 2px solid #ff0033;
-      padding: 16px;
-      border-radius: 8px;
-      opacity: 0;
-      pointer-events: none;
-      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    #pique-message-bunker.active { opacity: 1; transform: translate(-50%, -50%); pointer-events: auto; }
-
-    /* ESTILOS DEL FOOTER DE AUTORIDAD */
-    .axiom-footer {
-      max-width: 440px;
-      margin: 12px auto 0 auto;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 10px;
-      font-family: system-ui, -apple-system, sans-serif;
-      pointer-events: auto;
-    }
+    .glass-panel { background: var(--panel-glass); backdrop-filter: blur(16px); border: 1px solid var(--border-glow); border-radius: 16px; padding: 16px 24px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); transition: all 0.4s ease; }
+    .score-container { font-family: var(--font-hud); font-weight: 900; font-size: 2.5rem; color: var(--neon-primary); }
+    .theme-toggle { width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-glow); cursor: pointer; }
+    #pique-message-bunker { position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 500px; text-align: center; font-family: var(--font-mono); font-weight: 700; color: #ffffff; background: rgba(255, 0, 50, 0.85); border: 2px solid #ff0033; padding: 16px; border-radius: 8px; opacity: 0; pointer-events: none; transition: all 0.5s ease; }
+    #pique-message-bunker.active { opacity: 1; pointer-events: auto; }
+    .auth-title { font-size: 0.9rem; text-transform: uppercase; color: var(--neon-accent); margin-bottom: 12px; text-align: center; }
+    .form-group { display: flex; gap: 8px; }
+    .auth-input { flex: 1; background: rgba(0,0,0,0.4); border: 1px solid var(--border-glow); padding: 12px; color: #fff; border-radius: 8px; }
+    .auth-btn { background: var(--neon-primary); border: none; color: #000; font-weight: 700; padding: 0 20px; border-radius: 8px; cursor: pointer; }
+    .hidden { display: none !important; }
+    .axiom-footer { max-width: 440px; margin: 12px auto 0 auto; text-align: center; color: var(--text-muted); font-size: 10px; line-height: 1.4; }
   </style>
 </head>
 <body>
 
   <canvas id="canvas-viewport"></canvas>
+  
   <div id="axiom-watermark">[AXIOM_ENGINE // V8.8.8]</div>
 
   <div class="hud-overlay">
@@ -193,18 +80,18 @@
       <div id="pique-text">◤ ANALIZANDO TELEMETRÍA DE IMPACTO... ◢</div>
     </div>
 
-    <div class="glass-panel interactive-element" id="auth-gate-bunker" style="align-self: center; width: 100%; max-width: 420px;">
+    <div class="glass-panel interactive-element" style="align-self: center; width: 100%; max-width: 420px;" id="auth-gate-bunker">
       <div id="login-form-wrapper">
-        <h3 style="font-size: 0.9rem; text-transform: uppercase; color: var(--neon-accent); margin-bottom: 12px; text-align: center;">◤ Acceso Enclave Cifrado ◢</h3>
-        <div style="display: flex; gap: 8px;">
-          <input type="email" id="auth-email" style="flex: 1; background: rgba(0,0,0,0.4); border: 1px solid var(--border-glow); padding: 12px; color: #fff; border-radius: 8px;" placeholder="EMAIL SOBERANO">
-          <button onclick="executeSupabaseAuth()" style="background: var(--neon-primary); border: none; padding: 0 20px; border-radius: 8px; cursor: pointer;">Acceder</button>
+        <h3 class="auth-title">◤ Acceso Enclave Cifrado ◢</h3>
+        <div class="form-group">
+          <input type="email" id="auth-email" class="auth-input" placeholder="INGRESA TU EMAIL SOBERANO">
+          <button class="auth-btn" onclick="executeSupabaseAuth()">Acceder</button>
         </div>
       </div>
-
+      
       <div id="user-logged-wrapper" class="hidden">
-        <h3 style="color: var(--neon-primary); text-align: center;">◤ Sincronizado ◢</h3>
-        <div id="user-status-text" style="font-family: var(--font-mono); text-align: center;"></div>
+        <h3 class="auth-title" style="color: var(--neon-primary);">◤ Sincronizado: Conexión Activa ◢</h3>
+        <div id="user-status-text" style="font-family: var(--font-mono); font-size: 0.85rem; text-align: center; color: var(--text-main);"></div>
       </div>
 
       <footer class="axiom-footer">
@@ -213,13 +100,14 @@
     </div>
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // 1. AUDIO-ID: SÍNTESIS DE METAL PESADO
+    // 1. AUDIO-ID: SÍNTESIS DE SONIDOS DE INTERFAZ (METAL PESADO)
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playAxiomSound(freq, type) {
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
-      osc.type = type; // 'square' para metal, 'sawtooth' para tensión
+      osc.type = type; 
       osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
       gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
@@ -227,21 +115,22 @@
       osc.start(); osc.stop(audioCtx.currentTime + 0.1);
     }
 
-    // 2. MOTOR GRÁFICO BARE-METAL
-    let scene, camera, renderer, shieldMesh;
+    // 2. VARIABLES DEL MOTOR
+    let scene, camera, renderer, shieldMesh, waves = [];
+    let score = 0, comboStreak = 0, lastTime = performance.now(), waveSpeedMultiplier = 1.0;
+    const RECORD_MANUEL = 42;
     const pointer = new THREE.Vector2();
     const watermark = document.getElementById('axiom-watermark');
 
-    function init() {
+    // 3. INICIALIZACIÓN
+    function initEngine3D() {
       scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 100);
+      camera.position.z = 5;
       renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas-viewport'), antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
 
-      shieldMesh = new THREE.Mesh(
-        new THREE.CylinderGeometry(1, 1, 0.2, 32),
-        new THREE.MeshStandardMaterial({ color: 0x00ff66, metalness: 0.8, roughness: 0.2 })
-      );
+      shieldMesh = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 0.15, 32), new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 1, roughness: 0.05 }));
       shieldMesh.rotation.x = Math.PI / 2;
       scene.add(shieldMesh);
       scene.add(new THREE.AmbientLight(0xffffff, 0.5));
@@ -249,33 +138,62 @@
       window.addEventListener('pointermove', (e) => {
         pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
         pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
-        // Inercia cinemática del Sello de Autor
-        watermark.style.transform = `translate(${pointer.x * 30}px, ${pointer.y * 30}px)`;
+        watermark.style.transform = `translate(${pointer.x * 20}px, ${pointer.y * 20}px)`;
       });
 
-      animate();
+      animateEngineLoop();
     }
 
-    function animate() {
-      requestAnimationFrame(animate);
-      shieldMesh.position.x += (pointer.x * 2 - shieldMesh.position.x) * 0.1;
-      shieldMesh.position.y += (pointer.y * 2 - shieldMesh.position.y) * 0.1;
+    // 4. BUCLE DE JUEGO (LÓGICA FUNCIONAL)
+    function animateEngineLoop() {
+      requestAnimationFrame(animateEngineLoop);
+      const delta = (performance.now() - lastTime) / 1000;
+      lastTime = performance.now();
+
+      shieldMesh.position.x += (pointer.x * 2.5 - shieldMesh.position.x) * 0.2;
+      shieldMesh.position.y += (pointer.y * 2.0 - shieldMesh.position.y) * 0.2;
+
+      if (Math.random() < 0.02 * waveSpeedMultiplier) spawnWave();
+
+      waves.forEach((w, i) => {
+        w.position.z += 8 * delta * waveSpeedMultiplier;
+        if (w.position.z > 6) { scene.remove(w); waves.splice(i, 1); triggerColapso(); }
+        else if (w.position.z > 4.5 && Math.abs(w.position.x - shieldMesh.position.x) < 1.4 && Math.abs(w.position.y - shieldMesh.position.y) < 1.4) {
+          scene.remove(w); waves.splice(i, 1);
+          score += 100; comboStreak++;
+          document.getElementById('score-display').innerText = String(score).padStart(6, '0');
+          playAxiomSound(200, 'square');
+        }
+      });
       renderer.render(scene, camera);
+    }
+
+    function spawnWave() {
+      const w = new THREE.Mesh(new THREE.RingGeometry(0.1, 0.3, 32), new THREE.MeshBasicMaterial({ color: 0x00d9ff }));
+      w.position.set((Math.random()-0.5)*3, (Math.random()-0.5)*3, -20);
+      scene.add(w); waves.push(w);
+    }
+
+    function triggerColapso() {
+      comboStreak = 0;
+      playAxiomSound(100, 'sawtooth');
+      document.getElementById('pique-message-bunker').classList.add('active');
+      setTimeout(() => document.getElementById('pique-message-bunker').classList.remove('active'), 2000);
     }
 
     function toggleThemeEngine() {
       document.documentElement.classList.toggle('light-mode');
-      playAxiomSound(150, 'square'); // Sonido de interfaz tipo metal
+      playAxiomSound(300, 'sine');
     }
 
     function executeSupabaseAuth() {
-      playAxiomSound(400, 'sawtooth'); // Sonido de subida de tensión
       document.getElementById('login-form-wrapper').classList.add('hidden');
       document.getElementById('user-logged-wrapper').classList.remove('hidden');
       document.getElementById('user-status-text').innerText = "CONEXIÓN ESTABLECIDA";
+      playAxiomSound(500, 'sine');
     }
 
-    init();
+    window.onload = initEngine3D;
   </script>
 </body>
 </html>
