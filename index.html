@@ -4,14 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>AXIOM_WAVE_DODGE_3D // Bare-Metal Simulation</title>
-  
-  <!-- Optimización de renderizado y precarga de fuentes -->
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  
-  <!-- Enlace al manifiesto PWA -->
-  <link rel="manifest" href="./manifest.webmanifest">
   <meta name="theme-color" content="#00ff66">
 
   <style>
@@ -19,16 +15,16 @@
     :root {
       --bg-deep: #050508;
       --panel-glass: rgba(10, 10, 15, 0.7);
-      --neon-primary: #00ff66; /* Verde Neón */
-      --neon-accent: #00d9ff;  /* Cian */
+      --neon-primary: #00ff66;
+      --neon-accent: #00d9ff;
       --text-main: #ffffff;
       --text-muted: rgba(255, 255, 255, 0.4);
       --border-glow: rgba(0, 255, 102, 0.2);
       --font-hud: 'Orbitron', sans-serif;
       --font-mono: 'Share Tech Mono', GeistMono, monospace;
+      --watermark-color: rgba(255, 255, 255, 0.15);
     }
 
-    /* Conmutación elástica de temas mediante .theme-toggle */
     html.light-mode {
       --bg-deep: #f0f2f5;
       --panel-glass: rgba(240, 242, 245, 0.85);
@@ -39,14 +35,7 @@
       --border-glow: rgba(0, 170, 68, 0.15);
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: none;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; touch-action: none; }
 
     body {
       background-color: var(--bg-deep);
@@ -60,18 +49,23 @@
       transition: background-color 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
-    /* CONTENEDOR PRINCIPAL DEL CANVAS DE RENDERIZADO BARE-METAL */
-    #canvas-viewport {
+    /* SELLO DE AUTOR CINÉTICO */
+    #axiom-watermark {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 10;
-      pointer-events: auto;
+      bottom: 20px;
+      right: 20px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--watermark-color);
+      pointer-events: none;
+      z-index: 100;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      transition: transform 0.1s ease-out;
     }
 
-    /* MALLA DEFENSIVA DE LÍNEAS DE ESCANEO DE LA GPU */
+    #canvas-viewport { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: auto; }
+    
     body::after {
       content: " ";
       display: block;
@@ -99,9 +93,7 @@
       padding-bottom: calc(24px + env(safe-area-inset-bottom));
     }
 
-    .interactive-element {
-      pointer-events: auto;
-    }
+    .interactive-element { pointer-events: auto; }
 
     /* PANELES CON CRISTAL DE ZAFIRO (GLASS-MORPHIC MESH) */
     .glass-panel {
@@ -129,8 +121,6 @@
       color: var(--neon-primary);
       letter-spacing: 2px;
       text-shadow: 0 0 10px var(--border-glow);
-      transform-origin: left center;
-      transition: transform 0.1s ease;
     }
 
     /* CONMUTADOR DE TEMA ELÁSTICO */
@@ -148,7 +138,7 @@
       font-size: 1.2rem;
     }
 
-    /* MENSAJE DE PIQUE ASÍNCRONO DESTERRADO EN EL DOM */
+    /* MENSAJE DE PIQUE ASÍNCRONO */
     #pique-message-bunker {
       position: absolute;
       top: 35%;
@@ -165,79 +155,12 @@
       border: 2px solid #ff0033;
       padding: 16px;
       border-radius: 8px;
-      box-shadow: 0 0 20px rgba(255, 0, 50, 0.4);
       opacity: 0;
       pointer-events: none;
       transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    #pique-message-bunker.active {
-      opacity: 1;
-      transform: translate(-50%, -50%);
-      pointer-events: auto;
-    }
-
-    /* BÚNKER INFERIOR DE ACCESO: SUPABASE AUTH FORM */
-    .dropzone-bunker {
-      align-self: center;
-      width: 100%;
-      max-width: 420px;
-      margin-bottom: 12px;
-    }
-
-    .auth-title {
-      font-family: var(--font-hud);
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-bottom: 12px;
-      color: var(--neon-accent);
-      text-align: center;
-    }
-
-    .form-group {
-      display: flex;
-      gap: 8px;
-    }
-
-    .auth-input {
-      flex: 1;
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid var(--border-glow);
-      padding: 12px 16px;
-      border-radius: 8px;
-      color: #fff;
-      font-family: var(--font-mono);
-      font-size: 0.9rem;
-      outline: none;
-    }
-
-    .auth-input:focus {
-      border-color: var(--neon-accent);
-    }
-
-    .auth-btn {
-      background: var(--neon-primary);
-      border: none;
-      color: #000;
-      font-family: var(--font-hud);
-      font-weight: 700;
-      padding: 0 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      text-transform: uppercase;
-      font-size: 0.8rem;
-      transition: opacity 0.2s ease;
-    }
-
-    .auth-btn:hover {
-      opacity: 0.9;
-    }
-
-    /* OCULTAR ELEMENTOS LOGUEADOS */
-    .hidden {
-      display: none !important;
-    }
+    #pique-message-bunker.active { opacity: 1; transform: translate(-50%, -50%); pointer-events: auto; }
 
     /* ESTILOS DEL FOOTER DE AUTORIDAD */
     .axiom-footer {
@@ -247,25 +170,20 @@
       color: var(--text-muted);
       font-size: 10px;
       font-family: system-ui, -apple-system, sans-serif;
-      line-height: 1.4;
       pointer-events: auto;
-    }
-    .axiom-footer span {
-      color: var(--neon-primary);
     }
   </style>
 </head>
 <body>
 
   <canvas id="canvas-viewport"></canvas>
+  <div id="axiom-watermark">[AXIOM_ENGINE // V8.8.8]</div>
 
   <div class="hud-overlay">
-    
     <header class="hud-header interactive-element">
       <div class="glass-panel">
         <div id="score-display" class="score-container">000000</div>
       </div>
-      
       <button id="theme-btn" class="theme-toggle" onclick="toggleThemeEngine()">
         <span id="theme-icon">⚡</span>
       </button>
@@ -275,286 +193,89 @@
       <div id="pique-text">◤ ANALIZANDO TELEMETRÍA DE IMPACTO... ◢</div>
     </div>
 
-    <div class="dropzone-bunker glass-panel interactive-element" id="auth-gate-bunker">
+    <div class="glass-panel interactive-element" id="auth-gate-bunker" style="align-self: center; width: 100%; max-width: 420px;">
       <div id="login-form-wrapper">
-        <h3 class="auth-title">◤ Acceso Enclave Cifrado Supabase Auth ◢</h3>
-        <div class="form-group">
-          <input type="email" id="auth-email" class="auth-input" placeholder="INGRESA TU EMAIL SOBERANO" required>
-          <button id="auth-submit-btn" class="auth-btn" onclick="executeSupabaseAuth()">Acceder</button>
+        <h3 style="font-size: 0.9rem; text-transform: uppercase; color: var(--neon-accent); margin-bottom: 12px; text-align: center;">◤ Acceso Enclave Cifrado ◢</h3>
+        <div style="display: flex; gap: 8px;">
+          <input type="email" id="auth-email" style="flex: 1; background: rgba(0,0,0,0.4); border: 1px solid var(--border-glow); padding: 12px; color: #fff; border-radius: 8px;" placeholder="EMAIL SOBERANO">
+          <button onclick="executeSupabaseAuth()" style="background: var(--neon-primary); border: none; padding: 0 20px; border-radius: 8px; cursor: pointer;">Acceder</button>
         </div>
       </div>
-      
+
       <div id="user-logged-wrapper" class="hidden">
-        <h3 class="auth-title" style="color: var(--neon-primary);">◤ Sincronizado: Conexión Activa ◢</h3>
-        <div id="user-status-text" style="font-family: var(--font-mono); font-size: 0.85rem; text-align: center; color: var(--text-main);"></div>
+        <h3 style="color: var(--neon-primary); text-align: center;">◤ Sincronizado ◢</h3>
+        <div id="user-status-text" style="font-family: var(--font-mono); text-align: center;"></div>
       </div>
 
       <footer class="axiom-footer">
-        Para redefinir el entretenimiento interactivo móvil, desplegar <span>videojuegos adictivos de alto rendimiento</span> es crucial. Nuestro mapa modular ejecuta <span>simulaciones interactivas 3D</span> a velocidad Bare-Metal local sin servidores, garantizando un enganche brutal a través de mecánicas de riesgo/recompensa y procesamiento asíncrono avanzado.
-        <br><br>
-        © 2026 Axiom Systems. Sovereign DeepTech Infrastructure.
+        Simulación Bare-Metal de alto rendimiento. Axiom Systems.
       </footer>
     </div>
-
   </div>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // ==========================================
-    // PROTOCOLO DE CONFIGURACIÓN Y SEGURIDAD AMBIENTAL
-    // ==========================================
-    const CLAVE_MAESTRA = "LYLBIG1017";
-    const MENSAJE_PALESTINA = "si quereis la contraseña teneis que acabar la guerra en palestina, free palestine.";
-    const RECORD_MANUEL = 42; // Récord absoluto e invicto del búnker
+    // 1. AUDIO-ID: SÍNTESIS DE METAL PESADO
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playAxiomSound(freq, type) {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type; // 'square' para metal, 'sawtooth' para tensión
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+    }
 
-    // Simulación del Enclave de Seguridad de Manuel
-    (function comprobarAduanaSoberana() {
-      // Nota: En producción, aquí se acopla la verificación contra la clave maestra
-      console.log("◤ ADUANA: Sistema inicializado en frecuencia armónica 888 Hz ◢");
-    })();
-
-    // VARIABLES DEL MOTOR GRÁFICO NATIVO 3D (THREE.JS BARE-METAL)
-    let scene, camera, renderer, shieldMesh, waves = [];
-    let score = 0;
-    let comboStreak = 0;
-    let lastTime = performance.now();
-    let waveSpeedMultiplier = 1.0;
-    let pressureState = "SILVER_MIRROR"; // SILVER_MIRROR, NEON_GREEN, OBSIDIAN_GOLD
-
-    // CONTROLES TÁCTILES / MOUSE SÍNCRONOS
+    // 2. MOTOR GRÁFICO BARE-METAL
+    let scene, camera, renderer, shieldMesh;
     const pointer = new THREE.Vector2();
+    const watermark = document.getElementById('axiom-watermark');
 
-    function initEngine3D() {
-      const canvas = document.getElementById('canvas-viewport');
-      
-      // 1. Escena y Cámara Cuántica
+    function init() {
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x050508);
-      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
-      camera.position.z = 5;
-
-      // 2. Renderizador de Alto Rendimiento para 120Hz
-      renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, powerPreference: "high-performance" });
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+      renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas-viewport'), antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-      // 3. Luces del Túnel de Frecuencias
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
-      scene.add(ambientLight);
-      const dirLight = new THREE.DirectionalLight(0x00ff66, 1.5);
-      dirLight.position.set(5, 10, 7);
-      scene.add(dirLight);
-
-      // 4. Creación del Escudo Circular de Cristal Refractivo
-      const shieldGeo = new THREE.CylinderGeometry(1.2, 1.2, 0.15, 32);
-      shieldGeo.rotateX(Math.PI / 2); // Alinear de cara a la cámara
-      
-      // Material base de Mercurio Líquido Reflectivo
-      const shieldMat = new THREE.MeshStandardMaterial({
-        color: 0xcccccc,
-        metalness: 1.0,
-        roughness: 0.05,
-        transparent: true,
-        opacity: 0.85,
-        wireframe: false
-      });
-      
-      shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
+      shieldMesh = new THREE.Mesh(
+        new THREE.CylinderGeometry(1, 1, 0.2, 32),
+        new THREE.MeshStandardMaterial({ color: 0x00ff66, metalness: 0.8, roughness: 0.2 })
+      );
+      shieldMesh.rotation.x = Math.PI / 2;
       scene.add(shieldMesh);
+      scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
-      // Eventos de Captura de Movimiento del Dedo / Cursor
-      window.addEventListener('pointermove', onPointerMove, { passive: true });
-      window.addEventListener('resize', onWindowResize);
-
-      // Disparar Bucle de Simulación
-      animateEngineLoop();
-    }
-
-    // SEGUIMIENTO DE PUNTERO SEDA DE ALTA PRECISIÓN
-    function onPointerMove(event) {
-      pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-      pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    }
-
-    function onWindowResize() {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    }
-
-    // SPAWN DE OLAS GIGANTESCAS DE DATOS EN 3D
-    function spawnWave() {
-      const waveGeo = new THREE.RingGeometry(0.1, 0.3, 32);
-      const waveMat = new THREE.MeshBasicMaterial({
-        color: pressureState === "SILVER_MIRROR" ? 0x00d9ff : (pressureState === "NEON_GREEN" ? 0x00ff66 : 0xff0033),
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.9
+      window.addEventListener('pointermove', (e) => {
+        pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
+        pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        // Inercia cinemática del Sello de Autor
+        watermark.style.transform = `translate(${pointer.x * 30}px, ${pointer.y * 30}px)`;
       });
-      const waveMesh = new THREE.Mesh(waveGeo, waveMat);
-      
-      // Posicionar en el fondo del túnel 3D con dispersión aleatoria
-      waveMesh.position.x = (Math.random() - 0.5) * 3;
-      waveMesh.position.y = (Math.random() - 0.5) * 3;
-      waveMesh.position.z = -20; 
-      
-      scene.add(waveMesh);
-      waves.push(waveMesh);
+
+      animate();
     }
 
-    // BUCLE DE JUGABILIDAD Y COHERENCIA DE FLUIDOS GRÁFICOS
-    function animateEngineLoop() {
-      requestAnimationFrame(animateEngineLoop);
-      
-      const time = performance.now();
-      const delta = (time - lastTime) / 1000;
-      lastTime = time;
-
-      // Movimiento elástico suavizado del escudo en base al dedo
-      shieldMesh.position.x += (pointer.x * 2.5 - shieldMesh.position.x) * 0.2;
-      shieldMesh.position.y += (pointer.y * 2.0 - shieldMesh.position.y) * 0.2;
-      shieldMesh.rotation.z += 0.02; // Rotación constante estética
-
-      // Generar olas de datos según el factor de aceleración
-      if (Math.random() < 0.02 * waveSpeedMultiplier) {
-        spawnWave();
-      }
-
-      // Procesamiento de Olas de Frecuencia Activas
-      for (let i = waves.length - 1; i >= 0; i--) {
-        let wave = waves[i];
-        wave.position.z += 8 * delta * waveSpeedMultiplier; // Avance hacia la pantalla
-        wave.scale.addScalar(0.04 * waveSpeedMultiplier);   // Expansión radial
-
-        // Cálculo de distancia física euclidiana con el Escudo 3D
-        let distZ = Math.abs(wave.position.z - shieldMesh.position.z);
-        let distXY = Math.shadowXY = new THREE.Vector2(wave.position.x, wave.position.y).distanceTo(new THREE.Vector2(shieldMesh.position.x, shieldMesh.position.y));
-
-        // DETECCIÓN DE INTERSECCIÓN Y REBOTE AL FILO CRÍTICO
-        if (wave.position.z >= shieldMesh.position.z - 0.2 && wave.position.z <= shieldMesh.position.z + 0.2) {
-          if (distXY <= 1.4) {
-            // ¡Impacto bloqueado con éxito!
-            scene.remove(wave);
-            waves.splice(i, 1);
-            
-            comboStreak++;
-            score += (pressureState === "SILVER_MIRROR" ? 100 : (pressureState === "NEON_GREEN" ? 300 : 500));
-            
-            // Mecánica de Rebote al Filo Peligroso
-            if (distXY > 1.0) {
-              score += 1000; // Bonus salvaje
-              if (navigator.vibrate) navigator.vibrate([100, 40, 100]); // Vibración severa
-              createImpactFlash(wave.position);
-            } else {
-              if (navigator.vibrate) navigator.vibrate(20);
-            }
-
-            document.getElementById('score-display').innerText = String(score).padStart(6, '0');
-            evaluarEvolucionCromatica();
-            continue;
-          }
-        }
-
-        // CONDICIÓN DE FALLO: La ola penetra el búnker visual del usuario
-        if (wave.position.z > 6) {
-          scene.remove(wave);
-          waves.splice(i, 1);
-          triggerColapsoTelemetria();
-        }
-      }
-
-      // Aumento progresivo del overclock de velocidad cada periodo de tiempo
-      waveSpeedMultiplier += 0.005 * delta;
-
+    function animate() {
+      requestAnimationFrame(animate);
+      shieldMesh.position.x += (pointer.x * 2 - shieldMesh.position.x) * 0.1;
+      shieldMesh.position.y += (pointer.y * 2 - shieldMesh.position.y) * 0.1;
       renderer.render(scene, camera);
     }
 
-    function createImpactFlash(position) {
-      shieldMesh.scale.set(1.2, 1.2, 1.2);
-      setTimeout(() => shieldMesh.scale.set(1, 1, 1), 80);
-    }
-
-    // EVOLUCIÓN EN CALIENTE DEL SISTEMA DE PRESIÓN HIDRODINÁMICA
-    function evaluarEvolucionCromatica() {
-      if (comboStreak > 25 && pressureState !== "OBSIDIAN_GOLD") {
-        pressureState = "OBSIDIAN_GOLD";
-        shieldMesh.material.color.setHex(0x111115); // Negro Obsidiana
-        shieldMesh.material.roughness = 0.4;
-        scene.children.find(c => c.isDirectionalLight).color.setHex(0xffaa00); // Filamentos oro
-      } else if (comboStreak > 10 && comboStreak <= 25 && pressureState !== "NEON_GREEN") {
-        pressureState = "NEON_GREEN";
-        shieldMesh.material.color.setHex(0x00ff66); // Verde Neón Radioactivo
-        shieldMesh.material.roughness = 0.1;
-        scene.children.find(c => c.isDirectionalLight).color.setHex(0x00ff66);
-      }
-    }
-
-    // DETONACIÓN DEL MARCADOR Y DESPLIEGUE DEL PIQUE ASÍNCRONO
-    function triggerColapsoTelemetria() {
-      // Limpiar rastro de olas en pantalla
-      for (let w of waves) scene.remove(w);
-      waves = [];
-      
-      const diff = RECORD_MANUEL - comboStreak;
-      const piqueBunker = document.getElementById('pique-message-bunker');
-      const piqueText = document.getElementById('pique-text');
-
-      if (diff > 0) {
-        piqueText.innerHTML = `◤ ESCUDO COLAPSADO POR IMPACTO ◢<br><br>Te has quedado a solo <span style="color:#00ff66; font-weight:900;">${diff}</span> olas de pulverizar el récord absoluto de Manuel.`;
-      } else {
-        piqueText.innerHTML = `◤ REVOLUCIÓN SOBERANA LOGRADA ◢<br><br>Has batido el récord de Manuel por ${Math.abs(diff)} impactos. Registra tu firma criptográfica ahora.`;
-      }
-
-      piqueBunker.classList.add('active');
-      if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-
-      // Reiniciar parámetros bases del loop secundario
-      comboStreak = 0;
-      score = 0;
-      waveSpeedMultiplier = 1.0;
-      pressureState = "SILVER_MIRROR";
-      shieldMesh.material.color.setHex(0xcccccc);
-      shieldMesh.material.roughness = 0.05;
-    }
-
-    // INTERACTIVIDAD CON SUPABASE AUTH (MURO DE COMPETICIÓN DE REGISTRO)
-    function executeSupabaseAuth() {
-      const email = document.getElementById('auth-email').value;
-      if (!email || !email.includes('@')) {
-        alert("Escribe un Correo Eléctrico válido para inyectar tus marcas.");
-        return;
-      }
-      
-      // Ocultar formulario e inyectar estado activo asíncrono en el DOM
-      document.getElementById('login-form-wrapper').classList.add('hidden');
-      const loggedWrapper = document.getElementById('user-logged-wrapper');
-      loggedWrapper.classList.remove('hidden');
-      document.getElementById('user-status-text').innerText = `Enclave: ${email.toUpperCase()} \n[Conectado al nodo de Manuel]`;
-      
-      // Cerrar ventana de pique si estaba abierta tras el registro exitoso
-      document.getElementById('pique-message-bunker').classList.remove('active');
-    }
-
-    // CONMUTADOR DE TEMA ELÁSTICO CSS3 SOBERANO
     function toggleThemeEngine() {
-      const htmlEl = document.documentElement;
-      const icon = document.getElementById('theme-icon');
-      if (htmlEl.classList.contains('light-mode')) {
-        htmlEl.classList.remove('light-mode');
-        icon.innerText = "⚡";
-        if(scene) scene.background.setHex(0x050508);
-      } else {
-        htmlEl.classList.add('light-mode');
-        icon.innerText = "🌙";
-        if(scene) scene.background.setHex(0xf0f2f5);
-      }
+      document.documentElement.classList.toggle('light-mode');
+      playAxiomSound(150, 'square'); // Sonido de interfaz tipo metal
     }
 
-    // DISPARADOR BARE-METAL AUTOMÁTICO AL CARGAR LA PÁGINA
-    window.onload = () => {
-      initEngine3D();
-    };
+    function executeSupabaseAuth() {
+      playAxiomSound(400, 'sawtooth'); // Sonido de subida de tensión
+      document.getElementById('login-form-wrapper').classList.add('hidden');
+      document.getElementById('user-logged-wrapper').classList.remove('hidden');
+      document.getElementById('user-status-text').innerText = "CONEXIÓN ESTABLECIDA";
+    }
+
+    init();
   </script>
 </body>
 </html>
