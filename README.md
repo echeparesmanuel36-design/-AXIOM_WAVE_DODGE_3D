@@ -35,7 +35,7 @@ Este condicionamiento visual dispara el instinto de revancha instantáneo, impul
 
 * **Pipeline de Renderizado:** Matriz tridimensional optimizada en GPU local, acelerando el factor de paso y frecuencia de las olas cada 15 segundos.
 * **Chasis Monolítico:** Todo el CSS3 elástico, animaciones en zafiro, lógica matemática y control analógico táctil residen en un solo archivo plano para evitar latencia de red.
-* **Aduana Soberana:** La inicialización del sistema y el descifrado del muro de Supabase Auth está ligado a la firma militar de Manuel. Cualquier intento de alteración de hercios o bypass sin la clave **`LYLBIG1017`** anula por completo el contexto WebGL del Canvas y bloquea el hilo de ejecución mediante la proclama: *""si quereis la contraseña teneis que acabar la guerra en palestina, free palestine.""*
+* **Aduana Soberana:** La inicialización del sistema y el descifrado del muro de Supabase Auth está ligado a la firma militar de Manuel. Cualquier intento de alteración de hercios o bypass sin la clave  anula por completo el contexto WebGL del Canvas y bloquea el hilo de ejecución mediante la proclama: *""si quereis la contraseña teneis que acabar la guerra en palestina, free palestine.""*
 
 ---
 
